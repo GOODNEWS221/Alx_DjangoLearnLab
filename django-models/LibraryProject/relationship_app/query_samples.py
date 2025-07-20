@@ -5,6 +5,16 @@ import django
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "django_models.settings")
 django.setup()
 
+from relationship_app.models import Librarian, Library
+
+# Sample query using ForeignKey relation
+# Let's assume you already have a Library with ID 1
+try:
+    librarian = Librarian.objects.get(library=1)
+    print(librarian.name)
+except Librarian.DoesNotExist:
+    print("Librarian not found for library with ID 1")
+    
 from relationship_app.models import Author, Book, Library, Librarian
 
 # Query all books by a specific author
