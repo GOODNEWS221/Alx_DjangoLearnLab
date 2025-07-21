@@ -11,16 +11,17 @@ from django.contrib.auth.decorators import login_required
 from .forms import RegisterForm
 
 # Register view
-def register_view(request):
+def register(request):
     if request.method == 'POST':
-        form = RegisterForm(request.POST)
+        form = UserCreationForm(request.POST)
         if form.is_valid():
-            form.save()
-            return redirect('login')
+            user = form.save()
+            login(request, user)
+            return redirect('home')
     else:
-        form = RegisterForm()
-    return render(request, 'relationship_app/register.html', {'form': form})
-
+        form = UserCreationForm()  # ✅ This line is required
+    return render(request, 'register.html', {'form': form})
+   
 # Login view
 def login_view(request):
     if request.method == 'POST':
