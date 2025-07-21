@@ -7,11 +7,11 @@ from django.dispatch import receiver
 # User Profile Model with Role
 # ========================
 class UserProfile(models.Model):
-    ROLE_CHOICES = [
+    ROLE_CHOICES = (
         ('Admin', 'Admin'),
         ('Librarian', 'Librarian'),
         ('Member', 'Member'),
-    ]
+    )
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     role = models.CharField(max_length=20, choices=ROLE_CHOICES)
 

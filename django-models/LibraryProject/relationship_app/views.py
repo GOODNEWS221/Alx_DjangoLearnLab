@@ -1,53 +1,36 @@
 # ========================
 # Imports
 # ========================
-from django.shortcuts import render, redirect, get_object_or_404
-from django.views.generic.detail import DetailView
+from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import (
     login_required, user_passes_test, permission_required
 )
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
+from django.views.generic.detail import DetailView
 
 from .models import Book, Library
-from .forms import RegisterForm  # Use if you have a custom registration form
+# If you have a custom register form, import it here instead:
+# from .forms import RegisterForm
 
 # ========================
 # Role Check Functions
 # ========================
 def is_admin(user):
-    return user.groups.filter(name='Admin').exists()
+    return hasattr(user, 'userprofile') and user.userprofile.role == 'Admin'
 
 def is_librarian(user):
-    return user.groups.filter(name='Librarian').exists()
+    return hasattr(user, 'userprofile') and user.userprofile.role == 'Librarian'
 
 def is_member(user):
-    return user.groups.filter(name='Member').exists()
-
-# ========================
-# Dashboard Views
-# ========================
-@login_required
-@user_passes_test(is_admin)
-def admin_view(request):
-    return render(request, 'relationship_app/admin_dashboard.html')
-
-@login_required
-@user_passes_test(is_librarian)
-def librarian_view(request):
-    return render(request, 'relationship_app/librarian_dashboard.html')
-
-@login_required
-@user_passes_test(is_member)
-def member_view(request):
-    return render(request, 'relationship_app/member_dashboard.html')
+    return hasattr(user, 'userprofile') and user.userprofile.role == 'Member'
 
 # ========================
 # Authentication Views
 # ========================
 def register_view(request):
     if request.method == 'POST':
-        form = UserCreationForm(request.POST)  # Replace with RegisterForm() if using custom
+        form = UserCreationForm(request.POST)  # Or use RegisterForm()
         if form.is_valid():
             user = form.save()
             login(request, user)
@@ -72,55 +55,14 @@ def logout_view(request):
     return render(request, 'relationship_app/logout.html')
 
 # ========================
-# Book & Library Views
+# Homepage
 # ========================
 @login_required
 def home(request):
     return render(request, 'relationship_app/home.html', {'user': request.user})
 
-@login_required
-def list_books(request):
-    books = Book.objects.select_related('author').all()
-    return render(request, 'relationship_app/list_books.html', {'books': books})
-
-class LibraryDetailView(DetailView):
-    model = Library
-    template_name = 'relationship_app/library_detail.html'
-    context_object_name = 'library'
-
 # ========================
-# Permission-Based Views
-# ========================
-@permission_required('relationship_app.can_add_book', raise_exception=True)
-def add_book(request):
-    return render(request, 'relationship_app/add_book.html')
-
-@permission_required('relationship_app.can_change_book', raise_exception=True)
-def edit_book(request):
-    return render(request, 'relationship_app/edit_book.html')
-
-@permission_required('relationship_app.can_delete_book', raise_exception=True)
-def delete_book(request):
-    return render(request, 'relationship_app/delete_book.html')
-
-from django.shortcuts import render
-from django.contrib.auth.decorators import login_required, user_passes_test
-from .models import UserProfile
-
-# ========================
-# Role Check Functions
-# ========================
-def is_admin(user):
-    return hasattr(user, 'userprofile') and user.userprofile.role == 'Admin'
-
-def is_librarian(user):
-    return hasattr(user, 'userprofile') and user.userprofile.role == 'Librarian'
-
-def is_member(user):
-    return hasattr(user, 'userprofile') and user.userprofile.role == 'Member'
-
-# ========================
-# Dashboard Views
+# Role-Based Views
 # ========================
 @login_required
 @user_passes_test(is_admin)
@@ -136,3 +78,33 @@ def librarian_view(request):
 @user_passes_test(is_member)
 def member_view(request):
     return render(request, 'relationship_app/member_view.html')
+
+# ========================
+# Book Views
+# ========================
+@login_required
+def list_books(request):
+    books = Book.objects.select_related('author').all()
+    return render(request, 'relationship_app/list_books.html', {'books': books})
+
+class LibraryDetailView(DetailView):
+    model = Library
+    template_name = 'relationship_app/library_detail.html'
+    context_object_name = 'library'
+
+# ========================
+# Permission-Protected Views
+# ========================
+@permission_required('relationship_app.can_add_book', raise_exception=True)
+def add_book(request):
+    return render(request, 'relationship_app/add_book.html')
+
+@permission_required('relationship_app.can_change_book', raise_exception=True)
+def edit_book(request):
+    return render(request, 'relationship_app/edit_book.html')
+
+@permission_required('relationship_app.can_delete_book', raise_exception=True)
+def delete_book(request):
+    return render(request, 'relationship_app/delete_book.html')
+
+
