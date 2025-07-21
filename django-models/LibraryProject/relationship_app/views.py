@@ -1,7 +1,8 @@
-# ========================
+# ====================================
 # Imports
-# ========================
+# ====================================
 from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import permission_required
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import (
     login_required, user_passes_test, permission_required
@@ -10,12 +11,11 @@ from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.views.generic.detail import DetailView
 
 from .models import Book, Library
-# If you have a custom register form, import it here instead:
-# from .forms import RegisterForm
+# from .forms import RegisterForm  # Uncomment if using custom form
 
-# ========================
+# ====================================
 # Role Check Functions
-# ========================
+# ====================================
 def is_admin(user):
     return hasattr(user, 'userprofile') and user.userprofile.role == 'Admin'
 
@@ -25,12 +25,12 @@ def is_librarian(user):
 def is_member(user):
     return hasattr(user, 'userprofile') and user.userprofile.role == 'Member'
 
-# ========================
+# ====================================
 # Authentication Views
-# ========================
+# ====================================
 def register_view(request):
     if request.method == 'POST':
-        form = UserCreationForm(request.POST)  # Or use RegisterForm()
+        form = UserCreationForm(request.POST)  # Replace with RegisterForm() if needed
         if form.is_valid():
             user = form.save()
             login(request, user)
@@ -54,16 +54,16 @@ def logout_view(request):
     logout(request)
     return render(request, 'relationship_app/logout.html')
 
-# ========================
-# Homepage
-# ========================
+# ====================================
+# Homepage View
+# ====================================
 @login_required
 def home(request):
     return render(request, 'relationship_app/home.html', {'user': request.user})
 
-# ========================
+# ====================================
 # Role-Based Views
-# ========================
+# ====================================
 @login_required
 @user_passes_test(is_admin)
 def admin_view(request):
@@ -79,9 +79,9 @@ def librarian_view(request):
 def member_view(request):
     return render(request, 'relationship_app/member_view.html')
 
-# ========================
+# ====================================
 # Book Views
-# ========================
+# ====================================
 @login_required
 def list_books(request):
     books = Book.objects.select_related('author').all()
@@ -92,9 +92,9 @@ class LibraryDetailView(DetailView):
     template_name = 'relationship_app/library_detail.html'
     context_object_name = 'library'
 
-# ========================
-# Permission-Protected Views
-# ========================
+# ====================================
+# Permission-Protected Book Actions
+# ====================================
 @permission_required('relationship_app.can_add_book', raise_exception=True)
 def add_book(request):
     return render(request, 'relationship_app/add_book.html')
@@ -106,5 +106,3 @@ def edit_book(request):
 @permission_required('relationship_app.can_delete_book', raise_exception=True)
 def delete_book(request):
     return render(request, 'relationship_app/delete_book.html')
-
-
