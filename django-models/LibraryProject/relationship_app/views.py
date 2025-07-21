@@ -1,38 +1,17 @@
+# ========================
+# Imports
+# ========================
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic.detail import DetailView
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.decorators import login_required, user_passes_test, permission_required
+from django.contrib.auth.decorators import (
+    login_required, user_passes_test, permission_required
+)
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 
 from .models import Book, Library
 from .forms import RegisterForm  # Use if you have a custom registration form
-from django.shortcuts import render
-from django.contrib.auth.decorators import permission_required
-from django.contrib.auth.decorators import login_required, user_passes_test
-from django.shortcuts import render
 
-# Check if user is in Admin group
-def is_admin(user):
-    return user.groups.filter(name='Admin').exists()
-
-# Admin-only view
-@login_required
-@user_passes_test(is_admin)
-def admin_view(request):
-    return render(request, 'admin_dashboard.html')
-
-
-@permission_required('relationship_app.can_add_book', raise_exception=True)
-def add_book(request):
-    return render(request, 'add_book.html')
-
-@permission_required('relationship_app.can_change_book', raise_exception=True)
-def edit_book(request):
-    return render(request, 'edit_book.html')
-
-@permission_required('relationship_app.can_delete_book', raise_exception=True)
-def delete_book(request):
-    return render(request, 'delete_book.html')
 # ========================
 # Role Check Functions
 # ========================
@@ -66,9 +45,9 @@ def member_view(request):
 # ========================
 # Authentication Views
 # ========================
-def register(request):
+def register_view(request):
     if request.method == 'POST':
-        form = UserCreationForm(request.POST)  # Change to RegisterForm if customized
+        form = UserCreationForm(request.POST)  # Replace with RegisterForm() if using custom
         if form.is_valid():
             user = form.save()
             login(request, user)
@@ -83,7 +62,7 @@ def login_view(request):
         if form.is_valid():
             user = form.get_user()
             login(request, user)
-            return redirect('home')  # or list_books
+            return redirect('home')
     else:
         form = AuthenticationForm()
     return render(request, 'relationship_app/login.html', {'form': form})
@@ -96,7 +75,7 @@ def logout_view(request):
 # Book & Library Views
 # ========================
 @login_required
-def home_view(request):
+def home(request):
     return render(request, 'relationship_app/home.html', {'user': request.user})
 
 @login_required
@@ -112,15 +91,48 @@ class LibraryDetailView(DetailView):
 # ========================
 # Permission-Based Views
 # ========================
-@permission_required('relationship_app.add_book')
+@permission_required('relationship_app.can_add_book', raise_exception=True)
 def add_book(request):
     return render(request, 'relationship_app/add_book.html')
 
-@permission_required('relationship_app.change_book')
+@permission_required('relationship_app.can_change_book', raise_exception=True)
 def edit_book(request):
     return render(request, 'relationship_app/edit_book.html')
 
-@permission_required('relationship_app.delete_book')
+@permission_required('relationship_app.can_delete_book', raise_exception=True)
 def delete_book(request):
     return render(request, 'relationship_app/delete_book.html')
 
+from django.shortcuts import render
+from django.contrib.auth.decorators import login_required, user_passes_test
+from .models import UserProfile
+
+# ========================
+# Role Check Functions
+# ========================
+def is_admin(user):
+    return hasattr(user, 'userprofile') and user.userprofile.role == 'Admin'
+
+def is_librarian(user):
+    return hasattr(user, 'userprofile') and user.userprofile.role == 'Librarian'
+
+def is_member(user):
+    return hasattr(user, 'userprofile') and user.userprofile.role == 'Member'
+
+# ========================
+# Dashboard Views
+# ========================
+@login_required
+@user_passes_test(is_admin)
+def admin_view(request):
+    return render(request, 'relationship_app/admin_view.html')
+
+@login_required
+@user_passes_test(is_librarian)
+def librarian_view(request):
+    return render(request, 'relationship_app/librarian_view.html')
+
+@login_required
+@user_passes_test(is_member)
+def member_view(request):
+    return render(request, 'relationship_app/member_view.html')
