@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -21,9 +22,40 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-x$15ya*a-^efi)0wc4#tba1$ywgm08fh$2@%=bd2$en4zzr8wg'
+SECRET_KEY = config('SECRET_KEY')
+DEBUG = config('DEBUG', cast=bool, default=False)
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# CSRF_COOKIE_SECURE ensures that the CSRF token is only sent over HTTPS connections.
+
+# ========================
+# Security Settings
+# ========================
+
+# Prevent browser from detecting content type automatically
+SECURE_CONTENT_TYPE_NOSNIFF = True
+
+# Prevent the site from being embedded in frames (clickjacking protection)
+X_FRAME_OPTIONS = 'DENY'
+
+# Enable the browser's XSS protection filter
+SECURE_BROWSER_XSS_FILTER = True
+
+# Ensure CSRF cookies are sent only over HTTPS
+CSRF_COOKIE_SECURE = True
+
+# Ensure session cookies are sent only over HTTPS
+SESSION_COOKIE_SECURE = True
+
+DEBUG = False  # Disable in production
+
+SECURE_BROWSER_XSS_FILTER = True
+X_FRAME_OPTIONS = 'DENY'
+SECURE_CONTENT_TYPE_NOSNIFF = True
+SECURE_SSL_REDIRECT = True
+
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
 
 ALLOWED_HOSTS = []
 
@@ -40,6 +72,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'bookshelf',
     'relationship_app',
+    'csp',
 ]
 
 
@@ -51,9 +84,17 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'csp.middleware.CSPMiddleware',
 ]
 
 ROOT_URLCONF = 'LibraryProject.urls'
+
+# Example CSP policy:
+CSP_DEFAULT_SRC = ("'self'",)
+CSP_STYLE_SRC = ("'self'", 'https://fonts.googleapis.com')
+CSP_FONT_SRC = ("'self'", 'https://fonts.gstatic.com')
+CSP_SCRIPT_SRC = ("'self'",)
+
 
 TEMPLATES = [
     {
