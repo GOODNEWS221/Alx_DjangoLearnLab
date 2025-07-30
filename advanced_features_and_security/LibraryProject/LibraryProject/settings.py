@@ -49,6 +49,31 @@ SESSION_COOKIE_SECURE = True
 
 DEBUG = False  # Disable in production
 
+# Enforce HTTPS by redirecting all HTTP requests
+SECURE_SSL_REDIRECT = True
+
+# Use HTTP Strict Transport Security (HSTS) to force HTTPS
+# 31536000 seconds = 1 year
+SECURE_HSTS_SECONDS = 31536000
+# Apply HSTS to all subdomains
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+# Allow domain to be preloaded into browser HSTS lists
+SECURE_HSTS_PRELOAD = True
+
+# Ensure cookies are only sent over HTTPS
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+
+# Prevent clickjacking by denying the site from being embedded in frames
+X_FRAME_OPTIONS = 'DENY'
+
+# Prevent MIME-type sniffing
+SECURE_CONTENT_TYPE_NOSNIFF = True
+
+# Enable browser’s XSS protection filter
+SECURE_BROWSER_XSS_FILTER = True
+
+
 SECURE_BROWSER_XSS_FILTER = True
 X_FRAME_OPTIONS = 'DENY'
 SECURE_CONTENT_TYPE_NOSNIFF = True
