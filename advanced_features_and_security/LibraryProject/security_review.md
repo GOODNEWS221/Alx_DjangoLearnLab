@@ -21,3 +21,5 @@ See `deployment_https_notes.md` for full server configuration details.
 - Use Content Security Policy (CSP) headers.
 - Set `Referrer-Policy`, `Permissions-Policy`, and `Strict-Transport-Security` headers at the server level.
 - Monitor HTTPS certificate renewal automation (e.g., Certbot auto-renewal logs).
+
+
