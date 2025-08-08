@@ -51,6 +51,12 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny',  # Open access unless overridden
+    ]
+}
+
 ROOT_URLCONF = 'advanced_api_project.urls'
 
 TEMPLATES = [
