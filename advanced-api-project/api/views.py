@@ -17,6 +17,10 @@ class BookDetailView(generics.RetrieveAPIView):
 
 # POST: Create a new book (authenticated users only)
 class BookCreateView(generics.CreateAPIView):
+     """
+    POST /api/books/create/
+    Allows authenticated users to create a new Book.
+    """
     queryset = Book.objects.all()
     serializer_class = BookSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -27,11 +31,19 @@ class BookUpdateView(generics.UpdateAPIView):
     serializer_class = BookSerializer
     permission_classes = [permissions.IsAuthenticated]
 
+    def get_object(self):
+        pk = self.request.query_params.get('pk')
+        return generics.get_object_or_404(Book, pk=pk)
+
 # DELETE: Delete a book (authenticated users only)
 class BookDeleteView(generics.DestroyAPIView):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
     permission_classes = [permissions.IsAuthenticated]
+
+    def get_object(self):
+        pk = self.request.query_params.get('pk')
+        return generics.get_object_or_404(Book, pk=pk)
 
 class BookCreateView(generics.CreateAPIView):
     queryset = Book.objects.all()
