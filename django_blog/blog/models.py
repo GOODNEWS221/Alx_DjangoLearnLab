@@ -7,6 +7,14 @@ from django.dispatch import receiver
 def profile_upload_to(instance, filename):
     return f"profiles/user_{instance.user.id}/{filename}"
 
+class Post(models.Model):
+    title = models.CharField(max_length=200)  # Blog post title
+    content = models.TextField()  # Blog post content
+    author = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="posts"
+    )  # Author linked to Django User
+    published_date = models.DateTimeField(auto_now_add=True)  # Auto timestamp when created
+
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
