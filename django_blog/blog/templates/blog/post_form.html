@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}{% if object %}Edit Post{% else %}New Post{% endif %}{% endblock %}
+{% block content %}
+<h1>{% if object %}Edit Post{% else %}Create Post{% endif %}</h1>
+
+<form method="post" novalidate>
+  {% csrf_token %}
+  {{ form.non_field_errors }}
+  <div>
+    <label>Title</label>
+    {{ form.title }} {{ form.title.errors }}
+  </div>
+  <div>
+    <label>Content</label>
+    {{ form.content }} {{ form.content.errors }}
+  </div>
+  <button type="submit">{% if object %}Save{% else %}Create{% endif %}</button>
+  <a href="{% url 'post_list' %}">Cancel</a>
+</form>
+{% endblock %}

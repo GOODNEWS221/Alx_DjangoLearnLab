@@ -5,7 +5,7 @@ from .models import Post, Profile
 class PostAdmin(admin.ModelAdmin):
     list_display = ("title", "author", "published_date")
     search_fields = ("title", "content")
-    list_filter = ("published_date",)
+    list_filter = ("published_date", 'author')
 
 @admin.register(Profile)
 class ProfileAdmin(admin.ModelAdmin):
