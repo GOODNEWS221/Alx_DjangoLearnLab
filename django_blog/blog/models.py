@@ -15,21 +15,17 @@ class Post(models.Model):
     )  # Author linked to Django User
     published_date = models.DateTimeField(auto_now_add=True)  # Auto timestamp when created
 
+    def __str__(self):
+        return self.title
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     bio = models.TextField(blank=True)
     image = models.ImageField(upload_to=profile_upload_to, blank=True, null=True)
+    avatar = models.ImageField(upload_to="avatars/", blank=True, null=True)
 
     def __str__(self):
         return f"Profile({self.user.username})"
 
 
-@receiver(post_save, sender=User)
-def create_or_update_user_profile(sender, instance, created, **kwargs):
-    if created:
-        Profile.objects.create(user=instance)
-    else:
-        instance.profile.save()
 
-# Create your models here.

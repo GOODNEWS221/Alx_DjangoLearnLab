@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Edit Profile | Django Blog{% endblock %}
+{% block content %}
+<h1>Edit profile</h1>
+
+<form method="post" enctype="multipart/form-data" novalidate>
+  {% csrf_token %}
+  <fieldset>
+    <legend>Account</legend>
+    {{ u_form.non_field_errors }}
+    <div>
+      <label>First name</label>
+      {{ u_form.first_name }} {{ u_form.first_name.errors }}
+    </div>
+    <div>
+      <label>Last name</label>
+      {{ u_form.last_name }} {{ u_form.last_name.errors }}
+    </div>
+    <div>
+      <label>Email</label>
+      {{ u_form.email }} {{ u_form.email.errors }}
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>Profile</legend>
+    {{ p_form.non_field_errors }}
+    <div>
+      <label>Bio</label>
+      {{ p_form.bio }} {{ p_form.bio.errors }}
+    </div>
+    <div>
+      <label>Avatar</label>
+      {{ p_form.avatar }} {{ p_form.avatar.errors }}
+    </div>
+  </fieldset>
+
+  <button type="submit">Save changes</button>
+  <a href="{% url 'profile' %}">Cancel</a>
+</form>
+{% endblock %}

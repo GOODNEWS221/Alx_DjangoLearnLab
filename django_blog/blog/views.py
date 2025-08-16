@@ -1,51 +1,47 @@
 from django.contrib import messages
+from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView, LogoutView
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 
-from .forms import UserRegisterForm, UserUpdateForm, ProfileUpdateForm
+from .forms import RegisterForm, UserUpdateForm, ProfileUpdateForm
 
-
-class BlogLoginView(LoginView):
-    template_name = 'registration/login.html'
-
-
-class BlogLogoutView(LogoutView):
-    template_name = 'registration/logged_out.html'
-
-
-def register(request):
-    if request.method == 'POST':
-        form = UserRegisterForm(request.POST)
+def register_view(request):
+    if request.method == "POST":
+        form = RegisterForm(request.POST)
         if form.is_valid():
             user = form.save()
-            messages.success(request, 'Your account has been created. You can now log in.')
-            return redirect('login')
-        else:
-            messages.error(request, 'Please correct the errors below.')
+            messages.success(request, "Account created! You can now log in.")
+            # Optionally auto-login:
+            # login(request, user)
+            return redirect("login")
     else:
-        form = UserRegisterForm()
-    return render(request, 'register.html', { 'form': form })
+        form = RegisterForm()
+    return render(request, "blog/register.html", {"form": form})
 
+class BlogLoginView(LoginView):
+    template_name = "registration/login.html"   # Django expects registration/ by default
+
+class BlogLogoutView(LogoutView):
+    next_page = reverse_lazy("login")
 
 @login_required
-def profile(request):
-    if request.method == 'POST':
+def profile_view(request):
+    return render(request, "blog/profile.html")
+
+@login_required
+def profile_edit_view(request):
+    if request.method == "POST":
         u_form = UserUpdateForm(request.POST, instance=request.user)
         p_form = ProfileUpdateForm(request.POST, request.FILES, instance=request.user.profile)
         if u_form.is_valid() and p_form.is_valid():
             u_form.save()
             p_form.save()
-            messages.success(request, 'Profile updated successfully!')
-            return redirect('profile')
-        else:
-            messages.error(request, 'Please fix the errors below.')
+            messages.success(request, "Profile updated successfully.")
+            return redirect("profile")
     else:
         u_form = UserUpdateForm(instance=request.user)
         p_form = ProfileUpdateForm(instance=request.user.profile)
 
-    context = { 'u_form': u_form, 'p_form': p_form }
-    return render(request, 'profile.html', context)
-
-# Create your views here.
+    return render(request, "blog/profile_edit.html", {"u_form": u_form, "p_form": p_form})
