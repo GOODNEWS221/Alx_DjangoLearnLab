@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import (
-    PostListView, PostDetailView, PostCreateView, PostUpdateView, PostDeleteView,
+    CommentCreateView, PostListView, PostDetailView, PostCreateView, PostUpdateView, PostDeleteView,
     CommentUpdateView, CommentDeleteView, add_comment,   # ✅ Added comment views
     home,
     redirect_to_login,
@@ -20,6 +20,7 @@ urlpatterns = [
     path('posts/', PostListView.as_view(), name='post_list'),
 
     # Comments CRUD
+    path('posts/<int:post_id>/comments/new/', CommentCreateView.as_view(), name='add_comment'),
     path('post/<int:pk>/comments/new/', add_comment, name='add_comment'),  # ✅ use pk for consistency
     path('comments/<int:pk>/edit/', CommentUpdateView.as_view(), name='comment_update'),
     path('comments/<int:pk>/delete/', CommentDeleteView.as_view(), name='comment_delete'),
