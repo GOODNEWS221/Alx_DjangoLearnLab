@@ -11,6 +11,7 @@ from django.shortcuts import redirect
 from django.db.models import Q
 from django.shortcuts import render, get_object_or_404
 from .models import Post, Tag
+from taggit.models import Tag
 from django.views.generic import (
     ListView, DetailView, CreateView, UpdateView, DeleteView
 )
@@ -200,3 +201,20 @@ def post_search(request):
     if query:
         results = Post.objects.filter(title__icontains=query) | Post.objects.filter(content__icontains=query)
     return render(request, "blog/post_search.html", {"results": results, "query": query})
+
+
+class PostByTagListView(ListView):
+    model = Post
+    template_name = "blog/post_list_by_tag.html"
+    context_object_name = "posts"
+
+    def get_queryset(self):
+        tag_slug = self.kwargs.get("tag_slug")
+        self.tag = get_object_or_404(Tag, slug=tag_slug)
+        return Post.objects.filter(tags__in=[self.tag])
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["tag"] = self.tag
+        return context
+    
