@@ -5,6 +5,7 @@ from .models import Profile
 from .models import Post, Tag
 from .models import Post
 from .models import Comment
+from taggit.forms import TagWidget
 
 class RegisterForm(UserCreationForm):
     email = forms.EmailField(required=True)
@@ -31,9 +32,12 @@ class PostForm(forms.ModelForm):
     tags = forms.CharField(required=False, help_text="Enter tags separated by commas")
 
     class Meta:
-        model = Post
-        fields = ['title', 'content', 'tags']
-
+        class Meta:
+            model = Post
+            fields = ["title", "content", "tags"]   # ✅ include tags
+            widgets = {
+                "tags": TagWidget(),   # ✅ Tag input widget
+            }
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if self.instance.pk:  # Prepopulate tags when editing
