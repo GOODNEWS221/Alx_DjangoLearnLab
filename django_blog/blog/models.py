@@ -5,10 +5,12 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 
+# ---------- Upload Helpers ----------
 def profile_upload_to(instance, filename):
     return f"profiles/user_{instance.user.id}/{filename}"
 
 
+# ---------- Tag Model ----------
 class Tag(models.Model):
     name = models.CharField(max_length=50, unique=True)
 
@@ -16,6 +18,7 @@ class Tag(models.Model):
         return self.name
 
 
+# ---------- Blog Post Model ----------
 class Post(models.Model):
     title = models.CharField(max_length=200)  # Blog post title
     content = models.TextField()  # Blog post content
@@ -24,12 +27,13 @@ class Post(models.Model):
     )
     published_date = models.DateTimeField(auto_now_add=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    tags = models.ManyToManyField("Tag", blank=True, related_name="posts")  # ✅ safe string ref
+    tags = models.ManyToManyField("Tag", blank=True, related_name="posts")  # ✅ many-to-many
 
     def __str__(self):
         return self.title
 
 
+# ---------- User Profile Model ----------
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     bio = models.TextField(blank=True)
@@ -40,6 +44,7 @@ class Profile(models.Model):
         return f"Profile({self.user.username})"
 
 
+# ---------- Comments Model ----------
 class Comment(models.Model):
     post = models.ForeignKey(Post, related_name="comments", on_delete=models.CASCADE)
     author = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -54,7 +59,7 @@ class Comment(models.Model):
         return f"Comment by {self.author.username} on {self.post.title}"
 
 
-# 🔔 Signals to auto-create Profile when a User is created
+# ---------- Signals: Auto-create Profile when User is created ----------
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
     if created:

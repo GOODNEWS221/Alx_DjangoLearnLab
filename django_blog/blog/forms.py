@@ -1,12 +1,13 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from .models import Profile
-from .models import Post, Tag
-from .models import Post
-from .models import Comment
+from .models import Profile, Post, Tag, Comment
 from taggit.forms import TagWidget
 
+
+# -----------------------------
+# User & Profile Forms
+# -----------------------------
 class RegisterForm(UserCreationForm):
     email = forms.EmailField(required=True)
 
@@ -28,16 +29,20 @@ class ProfileUpdateForm(forms.ModelForm):
         model = Profile
         fields = ["bio", "avatar"]
 
+
+# -----------------------------
+# Post & Tag Form
+# -----------------------------
 class PostForm(forms.ModelForm):
-    tags = forms.CharField(required=False, help_text="Enter tags separated by commas")
+    tags = forms.CharField(
+        required=False,
+        help_text="Enter tags separated by commas"
+    )
 
     class Meta:
-        class Meta:
-            model = Post
-            fields = ["title", "content", "tags"]   # ✅ include tags
-            widgets = {
-                "tags": TagWidget(),   # ✅ Tag input widget
-            }
+        model = Post
+        fields = ["title", "content", "tags"]
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if self.instance.pk:  # Prepopulate tags when editing
@@ -66,11 +71,17 @@ class PostForm(forms.ModelForm):
         super().save_m2m()
         if hasattr(self, '_pending_tags'):
             self.instance.tags.set(self._pending_tags)
-            
+
+
+# -----------------------------
+# Comment Form
+# -----------------------------
 class CommentForm(forms.ModelForm):
     class Meta:
         model = Comment
         fields = ['content']
         widgets = {
-            'content': forms.Textarea(attrs={'rows': 3, 'placeholder': 'Write your comment...'}),
+            'content': forms.Textarea(
+                attrs={'rows': 3, 'placeholder': 'Write your comment...'}
+            ),
         }

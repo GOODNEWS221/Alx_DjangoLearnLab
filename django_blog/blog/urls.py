@@ -1,16 +1,11 @@
-from django import views
 from django.urls import path
-from .views import PostByTagListView
 from .views import (
+    PostByTagListView,
     CommentCreateView, PostListView, PostDetailView, PostCreateView, PostUpdateView, PostDeleteView,
-    CommentUpdateView, CommentDeleteView, add_comment,   # ✅ Added comment views
-    home, posts_by_tag,
-    redirect_to_login,
-    register_view,
-    BlogLoginView,
-    BlogLogoutView,
-    profile_view,
-    profile_edit_view, search_posts,
+    CommentUpdateView, CommentDeleteView,
+    home, posts_by_tag, search_posts,
+    register_view, BlogLoginView, BlogLogoutView,
+    profile_view, profile_edit_view
 )
 
 urlpatterns = [
@@ -21,14 +16,12 @@ urlpatterns = [
     path('post/<int:pk>/', PostDetailView.as_view(), name='post_detail'),
     path('posts/', PostListView.as_view(), name='post_list'),
 
-    # Tag
+    # Tags
     path("tags/<slug:tag_slug>/", PostByTagListView.as_view(), name="posts_by_tag"),
+    path("tags/<str:tag_name>/", posts_by_tag, name="posts_by_tag"),  # ⚠️ duplication here
 
     # Search
-    
-    path("search/", views.post_search, name="post_search"),
     path("search/", search_posts, name="search_posts"),
-    path("tags/<str:tag_name>/", posts_by_tag, name="posts_by_tag"),
 
     # Comments CRUD
     path("posts/<int:post_id>/comments/new/", CommentCreateView.as_view(), name='add_comment'),
