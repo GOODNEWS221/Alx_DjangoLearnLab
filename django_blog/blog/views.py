@@ -192,3 +192,11 @@ class CommentCreateView(LoginRequiredMixin, CreateView):
     def get_success_url(self):
         # Redirect back to the post detail after comment creation
         return reverse('post_detail', kwargs={'pk': self.object.post.pk})
+    
+
+def post_search(request):
+    query = request.GET.get("q")  # "q" is the search parameter from the URL
+    results = []
+    if query:
+        results = Post.objects.filter(title__icontains=query) | Post.objects.filter(content__icontains=query)
+    return render(request, "blog/post_search.html", {"results": results, "query": query})
