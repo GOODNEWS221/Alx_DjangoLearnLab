@@ -20,10 +20,10 @@ urlpatterns = [
     path('posts/', PostListView.as_view(), name='post_list'),
 
     # Comments CRUD
-    path('posts/<int:post_id>/comments/new/', CommentCreateView.as_view(), name='add_comment'),
+    path("posts/<int:post_id>/comments/new/", CommentCreateView.as_view(), name='add_comment'),
     path("post/<int:pk>/comments/new/", add_comment, name='add_comment'),  # ✅ use pk for consistency
-    path('comments/<int:pk>/edit/', CommentUpdateView.as_view(), name='comment_update'),
-    path('comments/<int:pk>/delete/', CommentDeleteView.as_view(), name='comment_delete'),
+    path("comments/<int:pk>/edit/", CommentUpdateView.as_view(), name='comment_update'),
+    path("comments/<int:pk>/delete/", CommentDeleteView.as_view(), name='comment_delete'),
 
     # Authentication & profiles
     path("login/", BlogLoginView.as_view(), name="login"),
