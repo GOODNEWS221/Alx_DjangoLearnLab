@@ -45,5 +45,13 @@
     <p><a href="{% url 'login' %}">Login</a> to leave a comment.</p>
 {% endif %}
 
+<p><strong>Tags:</strong>
+    {% for tag in post.tags.all %}
+        <a href="{% url 'posts_by_tag' tag.name %}">{{ tag.name }}</a>{% if not forloop.last %}, {% endif %}
+    {% empty %}
+        No tags
+    {% endfor %}
+</p>
+
 {% endblock %}
 

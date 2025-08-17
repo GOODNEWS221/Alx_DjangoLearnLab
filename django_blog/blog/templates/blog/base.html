@@ -1,3 +1,4 @@
+{% load static %}
 <!doctype html>
 <html lang="en">
 <head>
@@ -26,8 +27,14 @@
   </ul>
 {% endif %}
 
+<form method="get" action="{% url 'search_posts' %}">
+    <input type="text" name="q" placeholder="Search posts..." value="{{ request.GET.q }}">
+    <button type="submit">Search</button>
+</form>
+
 <main>
   {% block content %}{% endblock %}
 </main>
 </body>
 </html>
+

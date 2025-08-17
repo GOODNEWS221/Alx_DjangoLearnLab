@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from .models import Profile
+from .models import Post, Tag
 from .models import Post
 from .models import Comment
 
@@ -27,14 +28,41 @@ class ProfileUpdateForm(forms.ModelForm):
         fields = ["bio", "avatar"]
 
 class PostForm(forms.ModelForm):
+    tags = forms.CharField(required=False, help_text="Enter tags separated by commas")
+
     class Meta:
         model = Post
-        fields = ['title', 'content']  # author & published_date are set automatically
-        widgets = {
-            'title': forms.TextInput(attrs={'placeholder': 'Post title', 'maxlength': 200}),
-            'content': forms.Textarea(attrs={'rows': 10, 'placeholder': 'Write your post here...'}),
-        }
+        fields = ['title', 'content', 'tags']
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance.pk:  # Prepopulate tags when editing
+            self.fields['tags'].initial = ", ".join(
+                [tag.name for tag in self.instance.tags.all()]
+            )
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        tags_str = self.cleaned_data.get('tags', '')
+        tag_names = [t.strip() for t in tags_str.split(",") if t.strip()]
+        tag_objs = [Tag.objects.get_or_create(name=name)[0] for name in tag_names]
+
+        if commit:
+            instance.save()
+            instance.tags.set(tag_objs)
+        else:
+            # Delay setting tags until instance is saved
+            self._pending_tags = tag_objs
+        return instance
+
+    def save_m2m(self):
+        """
+        Ensure tags are saved properly even if save(commit=False) was used.
+        """
+        super().save_m2m()
+        if hasattr(self, '_pending_tags'):
+            self.instance.tags.set(self._pending_tags)
+            
 class CommentForm(forms.ModelForm):
     class Meta:
         model = Comment
