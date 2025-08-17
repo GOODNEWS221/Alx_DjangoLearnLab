@@ -3,7 +3,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from .models import Profile
 from .models import Post
-
+from .models import Comment
 
 class RegisterForm(UserCreationForm):
     email = forms.EmailField(required=True)
@@ -33,4 +33,12 @@ class PostForm(forms.ModelForm):
         widgets = {
             'title': forms.TextInput(attrs={'placeholder': 'Post title', 'maxlength': 200}),
             'content': forms.Textarea(attrs={'rows': 10, 'placeholder': 'Write your post here...'}),
+        }
+
+class CommentForm(forms.ModelForm):
+    class Meta:
+        model = Comment
+        fields = ['content']
+        widgets = {
+            'content': forms.Textarea(attrs={'rows': 3, 'placeholder': 'Write your comment...'}),
         }

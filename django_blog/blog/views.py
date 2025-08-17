@@ -3,14 +3,18 @@ from django.shortcuts import render
 from django.contrib.auth import login
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
 from django.contrib.auth.views import LoginView, LogoutView
 from django.urls import reverse_lazy, reverse
+from django.shortcuts import get_object_or_404, redirect
 from django.shortcuts import redirect
 from django.views.generic import (
     ListView, DetailView, CreateView, UpdateView, DeleteView
 )
 from .models import Post
 from .forms import PostForm
+from .models import Post, Comment
+from .forms import CommentForm
 
 from .forms import RegisterForm, UserUpdateForm, ProfileUpdateForm
 
@@ -110,3 +114,46 @@ def profile_edit_view(request):
         p_form = ProfileUpdateForm(instance=request.user.profile)
 
     return render(request, "blog/profile_edit.html", {"u_form": u_form, "p_form": p_form})
+
+
+@login_required
+def add_comment(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    if request.method == "POST":
+        form = CommentForm(request.POST)
+        if form.is_valid():
+            comment = form.save(commit=False)
+            comment.post = post
+            comment.author = request.user
+            comment.save()
+            return redirect('post_detail', pk=post.pk)
+    else:
+        form = CommentForm()
+    return redirect('post_detail', pk=post.pk)
+
+
+@method_decorator(login_required, name='dispatch')
+class CommentUpdateView(UpdateView):
+    model = Comment
+    form_class = CommentForm
+    template_name = 'blog/comment_form.html'
+
+    def get_queryset(self):
+        # Only allow author to edit their comment
+        return super().get_queryset().filter(author=self.request.user)
+
+    def get_success_url(self):
+        return reverse('post_detail', kwargs={'pk': self.object.post.pk})
+
+
+@method_decorator(login_required, name='dispatch')
+class CommentDeleteView(DeleteView):
+    model = Comment
+    template_name = 'blog/comment_confirm_delete.html'
+
+    def get_queryset(self):
+        # Only allow author to delete their comment
+        return super().get_queryset().filter(author=self.request.user)
+
+    def get_success_url(self):
+        return reverse_lazy('post_detail', kwargs={'pk': self.object.post.pk})

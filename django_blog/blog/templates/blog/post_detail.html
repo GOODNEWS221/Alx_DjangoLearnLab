@@ -15,4 +15,35 @@
 </article>
 
 <p><a href="{% url 'post_list' %}">Back to posts</a></p>
+
+<hr>
+
+<h2>Comments</h2>
+<div>
+    {% for comment in post.comments.all %}
+        <div style="margin-bottom: 10px;">
+            <strong>{{ comment.author.username }}</strong> • {{ comment.created_at|date:"M d, Y H:i" }}<br>
+            {{ comment.content|linebreaks }}
+            {% if comment.author == user %}
+                <a href="{% url 'comment_update' comment.pk %}">Edit</a> |
+                <a href="{% url 'comment_delete' comment.pk %}">Delete</a>
+            {% endif %}
+        </div>
+    {% empty %}
+        <p>No comments yet. Be the first!</p>
+    {% endfor %}
+</div>
+
+{% if user.is_authenticated %}
+    <h3>Add a Comment</h3>
+    <form method="post" action="{% url 'add_comment' post.pk %}">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Post Comment</button>
+    </form>
+{% else %}
+    <p><a href="{% url 'login' %}">Login</a> to leave a comment.</p>
+{% endif %}
+
 {% endblock %}
+
