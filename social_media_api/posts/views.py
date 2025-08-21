@@ -1,7 +1,12 @@
+from typing import Generic
 from rest_framework import viewsets, permissions, filters
 from .models import Post, Comment
 from .serializers import PostSerializer, CommentSerializer
 from rest_framework.pagination import PageNumberPagination
+from django.contrib.auth import get_user_model
+
+
+User = get_user_model()
 
 # Custom permission to allow only authors to edit/delete
 class IsAuthorOrReadOnly(permissions.BasePermission):
@@ -41,7 +46,7 @@ class CommentViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
-class FeedView(generics.ListAPIView):
+class FeedView(Generic.ListAPIView):
     serializer_class = PostSerializer
     permission_classes = [permissions.IsAuthenticated]
 
@@ -50,6 +55,5 @@ class FeedView(generics.ListAPIView):
         # Get posts by users the current user is following
         following_users = user.following.all()  # Users this user follows
         return Post.objects.filter(author__in=following_users).order_by('-created_at')
-
 
 
