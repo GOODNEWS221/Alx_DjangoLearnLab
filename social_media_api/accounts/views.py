@@ -43,3 +43,6 @@ class ProfileView(generics.RetrieveUpdateAPIView):
 
     def get_object(self):
         return self.request.user
+
+
+get_user_model().objects.create_user"
