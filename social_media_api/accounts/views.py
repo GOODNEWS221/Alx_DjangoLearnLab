@@ -45,4 +45,3 @@ class ProfileView(generics.RetrieveUpdateAPIView):
         return self.request.user
 
 
-get_user_model().objects.create_user"
