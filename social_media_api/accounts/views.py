@@ -28,3 +28,13 @@ class LoginView(APIView):
         return Response({'error': 'Invalid credentials'}, status=400)
 
 
+# Existing Registration and Login Views
+# RegisterView, LoginView
+
+# Profile view (GET your profile)
+class ProfileView(generics.RetrieveUpdateAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = UserRegisterSerializer
+
+    def get_object(self):
+        return self.request.user
