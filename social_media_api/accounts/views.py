@@ -79,5 +79,3 @@ class UnfollowUserView(generics.GenericAPIView):
         return Response({"message": f"You have unfollowed {target_user.username}"})
     
 
-
-["CustomUser.objects.all()"]
