@@ -4,6 +4,8 @@ from rest_framework.response import Response
 from django.contrib.auth import authenticate, get_user_model
 from rest_framework.authtoken.models import Token
 from .serializers import UserRegisterSerializer, UserLoginSerializer, UserProfileSerializer
+from django.contrib.auth import get_user_model
+from rest_framework import permissions, status
 
 User = get_user_model()
 
@@ -43,5 +45,37 @@ class ProfileView(generics.RetrieveUpdateAPIView):
 
     def get_object(self):
         return self.request.user
+
+
+class FollowUserView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, user_id):
+        try:
+            target_user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        if target_user == request.user:
+            return Response({'error': "You cannot follow yourself"}, status=status.HTTP_400_BAD_REQUEST)
+
+        target_user.followers.add(request.user)
+        return Response({'message': f'You are now following {target_user.username}'})
+
+
+class UnfollowUserView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, user_id):
+        try:
+            target_user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        if target_user == request.user:
+            return Response({'error': "You cannot unfollow yourself"}, status=status.HTTP_400_BAD_REQUEST)
+
+        target_user.followers.remove(request.user)
+        return Response({'message': f'You have unfollowed {target_user.username}'})
 
 
